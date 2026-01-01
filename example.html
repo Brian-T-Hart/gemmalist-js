@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Glist Todo (localStorage)</title>
+  <style>
+    body {
+      font-family: system-ui, sans-serif;
+      background: #f5f5f5;
+      padding: 20px;
+    }
+    .container {
+      max-width: 800px;
+      margin: auto;
+    }
+    .glist {
+      background: white;
+      padding: 16px;
+      margin-bottom: 16px;
+      border-radius: 6px;
+    }
+    .task {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 4px 0;
+    }
+    .completed {
+      text-decoration: line-through;
+      color: #888;
+    }
+    input, button {
+      padding: 6px;
+      margin-top: 6px;
+    }
+  </style>
+</head>
+<body>
+
+<div class="container">
+  <h1>Glist Todo (localStorage)</h1>
+
+  <h2>Create Glist</h2>
+  <input id="glistName" placeholder="List name" />
+  <button onclick="addGlist()">Add List</button>
+
+  <hr />
+
+  <div id="app"></div>
+</div>
+
+<script>
+/* -----------------------------
+   Storage helpers
+----------------------------- */
+
+const STORAGE_KEY = "glistApp";
+
+function loadState() {
+  return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {
+    meta: { version: 1 },
+    glists: { byId: {}, allIds: [] },
+    tasks: { byId: {}, allIds: [] }
+  };
+}
+
+function saveState(state) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+}
+
+let state = loadState();
+
+/* -----------------------------
+   Utilities
+----------------------------- */
+
+function uid(prefix) {
+  return `${prefix}_${crypto.randomUUID()}`;
+}
+
+/* -----------------------------
+   CRUD: Glists
+----------------------------- */
+
+function addGlist() {
+  const nameInput = document.getElementById("glistName");
+  const name = nameInput.value.trim();
+  if (!name) return;
+
+  const id = uid("g");
+  state.glists.byId[id] = {
+    id,
+    name,
+    description: "",
+    archived: false,
+    order: state.glists.allIds.length + 1
+  };
+  state.glists.allIds.push(id);
+
+  nameInput.value = "";
+  saveState(state);
+  render();
+}
+
+/* -----------------------------
+   CRUD: Tasks
+----------------------------- */
+
+function addTask(glistId, inputEl) {
+  const title = inputEl.value.trim();
+  if (!title) return;
+
+  const id = uid("t");
+  const order = state.tasks.allIds.filter(
+    tid => state.tasks.byId[tid].glist_id === glistId
+  ).length + 1;
+
+  state.tasks.byId[id] = {
+    id,
+    glist_id: glistId,
+    title,
+    description: "",
+    completed: false,
+    order
+  };
+  state.tasks.allIds.push(id);
+
+  inputEl.value = "";
+  saveState(state);
+  render();
+}
+
+function toggleTask(taskId) {
+  const task = state.tasks.byId[taskId];
+  task.completed = !task.completed;
+  saveState(state);
+  render();
+}
+
+/* -----------------------------
+   Selectors
+----------------------------- */
+
+function getTasksForGlist(glistId) {
+  return state.tasks.allIds
+    .map(id => state.tasks.byId[id])
+    .filter(t => t.glist_id === glistId)
+    .sort((a, b) => a.order - b.order);
+}
+
+/* -----------------------------
+   Rendering
+----------------------------- */
+
+function render() {
+  const app = document.getElementById("app");
+  app.innerHTML = "";
+
+  const glists = state.glists.allIds
+    .map(id => state.glists.byId[id])
+    .filter(g => !g.archived)
+    .sort((a, b) => a.order - b.order);
+
+  glists.forEach(glist => {
+    const div = document.createElement("div");
+    div.className = "glist";
+
+    div.innerHTML = `
+      <h3>${glist.name}</h3>
+      <div>
+        <input placeholder="New task"
+               onkeydown="if(event.key==='Enter') addTask('${glist.id}', this)" />
+      </div>
+    `;
+
+    const tasks = getTasksForGlist(glist.id);
+    tasks.forEach(task => {
+      const taskDiv = document.createElement("div");
+      taskDiv.className = "task";
+
+      taskDiv.innerHTML = `
+        <input type="checkbox" ${task.completed ? "checked" : ""}
+          onchange="toggleTask('${task.id}')" />
+        <span class="${task.completed ? "completed" : ""}">
+          ${task.title}
+        </span>
+      `;
+
+      div.appendChild(taskDiv);
+    });
+
+    app.appendChild(div);
+  });
+}
+
+/* -----------------------------
+   Initial render
+----------------------------- */
+
+render();
+</script>
+
+</body>
+</html>

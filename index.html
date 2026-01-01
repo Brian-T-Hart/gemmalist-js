@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en-us">
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>GemmaList</title>
+
+    <!-- Fonts -->
+    <link rel="dns-prefetch" href="//fonts.gstatic.com">
+    <link href="https://fonts.googleapis.com/css?family=Nunito:200,600" rel="stylesheet" type="text/css">
+
+    <!-- icons -->
+    <link rel="apple-touch-icon" sizes="180x180" href="/apple-touch-icon.png">
+    <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
+    <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
+    <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Styles -->
+    <link rel="stylesheet" href="https://use.fontawesome.com/releases/v5.6.3/css/all.css"
+        integrity="sha384-UHRtZLI+pbxtHCWp1t77Bi1L4ZtiqrqD80Kn4Z8NTSRyMA2Fd33n5dQ8lWUE00s/" crossorigin="anonymous">
+    <link href="assets/css/styles.css" rel="stylesheet">
+
+</head>
+
+<body>
+    <div id="app">
+        <nav class="navbar navbar-expand-md navbar-laravel">
+            <div class="container">
+                <a class="navbar-brand" href="/">
+                    GemmaList
+                </a>
+                <button class="navbar-toggler" type="button" data-toggle="collapse"
+                    data-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false"
+                    aria-label="Toggle navigation">
+                    <i class="fas fa-bars"></i>
+                </button>
+
+                <div class="collapse navbar-collapse" id="navbarSupportedContent">
+
+                    <!-- Right Side Of Navbar -->
+                    <ul class="navbar-nav ml-auto">
+                        <li class="nav-item">
+                            <!-- add list -->
+                            <a class="nav-item" id="create-glist-btn" href="#new-list-container" role="button"
+                                data-toggle="collapse" aria-expanded="false" aria-controls="new-list-container"
+                                title="Create new list">
+                                <i class="fas fa-plus"></i>
+                            </a>
+
+                            <!-- view hidden lists -->
+                            <a class="nav-item dropdown-toggle" id="archived-lists-toggle" href="#" role="button"
+                                data-toggle="dropdown" aria-haspopup="true" aria-expanded="false"
+                                title="View hidden lists">
+                                <i class="far fa-eye"></i>
+                            </a>
+
+                            <a class="nav-item" id="delete-completed-tasks-btn" href="#" title="Delete Completed Tasks">
+                                <i class="far fa-trash-alt"></i>
+                            </a>
+
+                            <!-- archived lists -->
+                            <div aria-labelledby="archived-lists-toggle" class="dropdown-menu" id="archived-lists">
+                            </div>
+                            <!-- end archived lists -->
+
+                            <!-- add new list -->
+                            <div class="collapse" id="new-list-container">
+
+                                <form id="create-glist-form" class="font-small" method="POST">
+
+                                    <input name="name" type="text" value="" placeholder="add a new list" required>
+
+                                    <button class="button list-add" type="submit">+</button>
+
+                                </form>
+
+                            </div> <!-- end add new list -->
+
+                        </li>
+                    </ul>
+                </div>
+            </div>
+        </nav>
+
+        <main class="container">
+            <div id="lists-container" class="lists-container"></div>
+        </main>
+    </div>
+
+    <!-- Scripts -->
+    <script src="assets/js/index.js" type="module"></script>
+</body>
+
+</html>
