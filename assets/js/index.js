@@ -388,7 +388,7 @@ deleteCompletedTasksBtn.addEventListener('click', function(event) {
 });
 
 function deleteCompletedTasks() {
-  const state = loadState();
+  state = loadState();
   const completedTaskIds = state.tasks.allIds.filter(id => state.tasks.byId[id].completed);
 
   completedTaskIds.forEach(id => {
