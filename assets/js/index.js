@@ -5,6 +5,17 @@ const listsContainer = document.getElementById('lists-container');
 const hiddenGlistsDropdown = document.getElementById('archived-lists');
 const hiddenGlistsToggle = document.getElementById('archived-lists-toggle');
 const deleteCompletedTasksBtn = document.getElementById('delete-completed-tasks-btn');
+const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+const mobileMenu = document.getElementById('navbarSupportedContent');
+
+setUpToggle(mobileMenuToggle, mobileMenu);
+
+function setUpToggle(toggler, toggled) {
+  toggler.addEventListener('click', function(e) {
+    e.preventDefault();
+    toggled.classList.toggle('show');
+  });
+}
 
 function loadState() {
   return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {
@@ -13,8 +24,6 @@ function loadState() {
     tasks: { byId: {}, allIds: [] }
   };
 }
-
-// console.log('Loaded state:', loadState());
 
 function saveState(state) {
   state.meta.lastUpdated = Date.now();
