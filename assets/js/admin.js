@@ -1,6 +1,10 @@
 const STORAGE_KEY = "glistApp";
-const importButton = document.getElementById('importButton')
+const exportButton = document.getElementById('exportButton');
+const importButton = document.getElementById('importButton');
+const clearButton = document.getElementById('clearButton');
 const form = document.getElementById('importForm');
+
+let state = loadState();
 
 function loadState() {
     return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {
@@ -29,10 +33,10 @@ function exportDataToClipboard(data) {
     }
 }
 
-const state = loadState();
 
 // Add an event listener to a button for exporting data
-document.getElementById('exportButton').addEventListener('click', () => {
+exportButton.addEventListener('click', () => {
+    state= loadState();
     exportDataToClipboard(state);
 });
 
@@ -44,6 +48,15 @@ importButton.addEventListener('click', () => {
     }
 
     form.classList.toggle('hidden');
+});
+
+// Add an event listener to a button for clearing localStorage
+clearButton.addEventListener('click', () => {
+    if (confirm('Are you sure you want to clear all data? This action cannot be undone.')) {
+        localStorage.removeItem(STORAGE_KEY);
+        state = loadState();
+        alert('Your data has been cleared successfully!');
+    }
 });
 
 form.addEventListener('submit', function (e) {
@@ -63,6 +76,7 @@ form.addEventListener('submit', function (e) {
 
     const parsedData = JSON.parse(data);
     localStorage.setItem(STORAGE_KEY, JSON.stringify(parsedData));
+    state = loadState();
     alert('LocalStorage has been updated successfully!');
 });
 
