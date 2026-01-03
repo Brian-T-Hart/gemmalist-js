@@ -270,8 +270,18 @@ if (listsContainer) {
       const confirmation = confirm("Are you sure you want to delete this list?");
 
       if (confirmation) {
+        // Delete the glist
         delete state.glists.byId[glistId];
         state.glists.allIds = state.glists.allIds.filter(id => id !== glistId);
+
+        // Delete associated tasks
+        const tasksToDelete = state.tasks.allIds.filter(taskId => state.tasks.byId[taskId].glist_id === glistId);
+        tasksToDelete.forEach(taskId => {
+          delete state.tasks.byId[taskId];
+        });
+        state.tasks.allIds = state.tasks.allIds.filter(taskId => !tasksToDelete.includes(taskId));
+
+        // Save state and re-render
         saveState(state);
         renderGlists(state);
       }
