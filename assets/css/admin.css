@@ -1,0 +1,70 @@
+:root {
+    --clr-blue: #3490dc;
+}
+
+body.admin {
+    margin: 0;
+    padding: 100px 50px;
+}
+
+.admin input[type=submit] {
+    background-color: #fff;
+    border: 2px solid var(--clr-blue);
+    border-radius: 5px;
+    color: #3490dc;
+    font-weight: 700;
+    padding: 8px 16px;
+}
+
+.admin textarea {
+    border: 1px solid #3490dc;
+    border-radius: 5px;
+    margin-bottom: 10px;
+    padding: 5px;
+}
+
+.admin .container {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    justify-content: center;
+    width: 1100px;
+    margin: auto;
+    max-width: 100%;
+}
+
+.admin h1,
+.admin p {
+    margin: 0;
+}
+
+.admin textarea {
+    height: 400px;
+    width: 500px;
+    max-width: 100%;
+}
+.admin .btn-row {
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+.admin .btn-row button {
+    background-color: #3490dc;
+    border-width: 0;
+    border-radius: 5px;
+    color: white;
+    cursor: pointer;
+    font-weight: 700;
+    padding: 8px 16px;
+}
+
+.hidden {
+    display: none;
+}
+
+.text-center {
+    text-align: center;
+}

@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +15,27 @@
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32x32.png">
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16x16.png">
     <link rel="manifest" href="/site.webmanifest">
+
+    <!-- Styles -->
+    <link href="assets/css/admin.css" rel="stylesheet">
 </head>
-<body>
-    <h1>Admin Page</h1>
-    <p>Welcome to the admin page of GemmaList.</p>
-    <button id="exportButton">Export Data</button>
-    <button id="importButton">Import Data</button>
+
+<body class="admin">
+    <main>
+        <div class="container">
+            <h1 class="text-center">Admin Page</h1>
+            <p class="text-center">Welcome to the admin page of GemmaList.</p>
+            <div class="btn-row text-center">
+                <button id="exportButton">Export Data</button>
+                <button id="importButton">Import Data</button>
+            </div>
+            <form class="text-center hidden" id="importForm">
+                <textarea id="importJson" placeholder="Paste JSON data here" required></textarea><br>
+                <input type="submit" value="submit">
+            </form>
+    </main>
 
     <script src="assets/js/admin.js"></script>
 </body>
+
 </html>
