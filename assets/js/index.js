@@ -1,5 +1,6 @@
-// localStorage.removeItem("glistApp"); // Uncomment to reset stored data during development
-const STORAGE_KEY = "glistApp";
+import StateManager from './state.js';
+
+// const STORAGE_KEY = "glistApp";
 const newListContainer = document.getElementById('new-list-container');
 const listsContainer = document.getElementById('lists-container');
 const hiddenGlistsDropdown = document.getElementById('archived-lists');
@@ -17,20 +18,9 @@ function setUpToggle(toggler, toggled) {
   });
 }
 
-function loadState() {
-  return JSON.parse(localStorage.getItem(STORAGE_KEY)) ?? {
-    meta: { version: 1, lastUpdated: Date.now() },
-    glists: { byId: {}, allIds: [] },
-    tasks: { byId: {}, allIds: [] }
-  };
-}
+// StateManager encapsulates state management logic
+let state = StateManager.load();
 
-function saveState(state) {
-  state.meta.lastUpdated = Date.now();
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
-}
-
-/***** Glist Functions *****/
 function renderGlists(state) {
   listsContainer.innerHTML = "";
 
@@ -147,7 +137,7 @@ function renderGlistDropdown(glist, state) {
         <i class="far fa-copy"></i> Import Tasks From
       </button>
 
-      <button class="dropdown-item text-danger" data-id="${glist.id}"
+      <button class="dropdown-item text-danger" data-id="${glist.id}">
         <i class="fas fa-trash"></i> Delete List
       </button>
 
@@ -156,15 +146,13 @@ function renderGlistDropdown(glist, state) {
     <div class="hidden import-list mb-1" id="import-list-${glist.id}">
       <div class="import-list-header pb-1 pt-1 pl-3">
         Import From
-        <span class="pointer right"
-              onclick="toggle('#import-list-${glist.id}')">
+        <span class="pointer right">
           <i class="fas fa-times"></i>
         </span>
       </div>
 
       ${sortedLists.map(list => `
-        <button class="dropdown-item pl-3"
-                onclick="importTasks('${list.id}', '${glist.id}')">
+        <button class="dropdown-item pl-3">
           ${escapeHTML(list.name)}
         </button>
       `).join("")}
@@ -201,7 +189,6 @@ function escapeHTML(str = "") {
   }[m]));
 }
 
-let state = loadState();
 renderGlists(state);
 
 // Add event listener for the "Create new list" button
@@ -235,7 +222,7 @@ if (createGlistForm) {
 
       state.glists.byId[newGlist.id] = newGlist;
       state.glists.allIds.push(newGlist.id);
-      saveState(state);
+      StateManager.save(state);
       renderGlists(state);
 
       // Reset the form and hide it
@@ -282,7 +269,7 @@ if (listsContainer) {
         state.tasks.allIds = state.tasks.allIds.filter(taskId => !tasksToDelete.includes(taskId));
 
         // Save state and re-render
-        saveState(state);
+        StateManager.save(state);
         renderGlists(state);
       }
     }
@@ -300,7 +287,7 @@ function archiveGlist(glistId) {
   const glist = state.glists.byId[glistId];
   if (glist) {
     glist.archived = true;
-    saveState(state);
+    StateManager.save(state);
     renderGlists(state);
   } else {
     console.error(`Glist with ID ${glistId} not found.`);
@@ -311,7 +298,7 @@ function unarchiveGlist(glistId) {
   const glist = state.glists.byId[glistId];
   if (glist) {
     glist.archived = false;
-    saveState(state);
+    StateManager.save(state);
     renderGlists(state);
   } else {
     console.error(`Glist with ID ${glistId} not found.`);
@@ -319,12 +306,12 @@ function unarchiveGlist(glistId) {
 }
 
 function toggleTask(taskId) {
-  const state = loadState();
+  const state = StateManager.load();
   const task = state.tasks.byId[taskId];
 
   if (task) {
     task.completed = !task.completed;
-    saveState(state);
+    StateManager.save(state);
     
     const taskElement = document.getElementById(`task_${taskId}`);
     const label = taskElement.querySelector('.checkbox-label');
@@ -338,7 +325,7 @@ function toggleTask(taskId) {
 }
 
 function addTaskToGlist(glistId, taskTitle) {
-  state = loadState();
+  state = StateManager.load();
 
   if (!state.glists.byId[glistId]) {
     console.error(`Glist with ID ${glistId} not found.`);
@@ -355,8 +342,8 @@ function addTaskToGlist(glistId, taskTitle) {
 
   state.tasks.byId[newTask.id] = newTask;
   state.tasks.allIds.push(newTask.id);
-  saveState(state);
-  state = loadState();
+  StateManager.save(state);
+  state = StateManager.load();
 
   const taskContainer = document.getElementById(`task-container-${glistId}`);
   if (taskContainer) {
@@ -407,7 +394,7 @@ deleteCompletedTasksBtn.addEventListener('click', function(event) {
 });
 
 function deleteCompletedTasks() {
-  state = loadState();
+  state = StateManager.load();
   const completedTaskIds = state.tasks.allIds.filter(id => state.tasks.byId[id].completed);
 
   completedTaskIds.forEach(id => {
@@ -415,7 +402,7 @@ function deleteCompletedTasks() {
   });
   
   state.tasks.allIds = state.tasks.allIds.filter(id => !completedTaskIds.includes(id));
-  saveState(state);
+  StateManager.save(state);
   renderGlists(state);
 }
 
@@ -468,7 +455,7 @@ listsContainer.addEventListener("dragend", () => {
   });
 
   state.glists.allIds = newOrder;
-  saveState(state);
+  StateManager.save(state);
 });
 
 // Enable drag-and-drop functionality for tasks within each glist
@@ -527,6 +514,6 @@ listsContainer.addEventListener("dragend", event => {
     });
 
     state.tasks.allIds = state.tasks.allIds.filter(id => !newTaskOrder.includes(id)).concat(newTaskOrder);
-    saveState(state);
+    StateManager.save(state);
   }
 });
