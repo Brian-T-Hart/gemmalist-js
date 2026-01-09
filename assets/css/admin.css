@@ -52,13 +52,18 @@ body.admin {
 }
 
 .admin .btn-row button {
-    background-color: #3490dc;
+    background-color: var(--clr-blue);
     border-width: 0;
     border-radius: 5px;
     color: white;
     cursor: pointer;
     font-weight: 700;
     padding: 8px 16px;
+}
+
+.admin .back-arrow {
+    color: black;
+    font-size: 28px;
 }
 
 .hidden {
