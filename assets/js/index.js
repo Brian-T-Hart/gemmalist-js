@@ -117,6 +117,10 @@ document.addEventListener("change", event => {
   }
 });
 
+// Initialize drag-and-drop functionality
+DragDropManager.enableGlistDragAndDrop(listsContainer, state, StateManager.save);
+DragDropManager.enableTaskDragAndDrop(listsContainer, state, StateManager.save);
+
 
 /***** Functions *********************************/
 function handleCreateGlistFormSubmit(createGlistForm) {
@@ -414,7 +418,3 @@ function closeAllDropdowns(exceptDropdown = null) {
     }
   });
 }
-
-// Initialize drag-and-drop functionality
-DragDropManager.enableGlistDragAndDrop(listsContainer, state, StateManager.save);
-DragDropManager.enableTaskDragAndDrop(listsContainer, state, StateManager.save);
