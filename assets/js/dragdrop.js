@@ -1,5 +1,5 @@
 const DragDropManager = {
-  enableGlistDragAndDrop: (listsContainer, state, saveState) => {
+  enableGlistDragAndDrop: (listsContainer, StateManager) => {
     listsContainer.addEventListener("dragstart", event => {
       const glist = event.target.closest(".list-container");
       if (glist) {
@@ -32,18 +32,27 @@ const DragDropManager = {
       }
 
       // Update the state with the new order
+      const state = StateManager.load();
       const newOrder = Array.from(listsContainer.children).map((child, index) => {
+        if (!child.id) {
+          alert("Child element is missing an ID:", child);
+          return null;
+        }
         const glistId = child.id.replace("glist-container_", "");
+        if (!state.glists.byId[glistId]) {
+          alert("State is missing glist ID:", glistId);
+          return null;
+        }
         state.glists.byId[glistId].order = index;
         return glistId;
-      });
+      }).filter(Boolean); // Remove null values
 
       state.glists.allIds = newOrder;
-      saveState(state);
+      StateManager.save(state);
     });
   },
 
-  enableTaskDragAndDrop: (listsContainer, state, saveState) => {
+  enableTaskDragAndDrop: (listsContainer, StateManager) => {
     listsContainer.addEventListener("dragstart", event => {
       const task = event.target.closest("form");
       if (task && task.parentElement.classList.contains("task-container")) {
@@ -81,16 +90,23 @@ const DragDropManager = {
 
       const taskContainer = event.target.closest(".task-container");
       if (taskContainer) {
+        const state = StateManager.load();
         const newTaskOrder = Array.from(taskContainer.children).map((child, index) => {
-          const taskId = child.id.replace("task_", "");
-          if (state.tasks.byId[taskId]) {
-            state.tasks.byId[taskId].order = index; // Update the order property
+          if (!child.id) {
+            alert("Task element is missing an ID:", child);
+            return null;
           }
+          const taskId = child.id.replace("task_", "");
+          if (!state.tasks.byId[taskId]) {
+            alert("State is missing task ID:", taskId);
+            return null;
+          }
+          state.tasks.byId[taskId].order = index; // Update the order property
           return taskId;
-        });
+        }).filter(Boolean); // Remove null values
 
         state.tasks.allIds = state.tasks.allIds.filter(id => !newTaskOrder.includes(id)).concat(newTaskOrder);
-        saveState(state);
+        StateManager.save(state);
       }
     });
   }
