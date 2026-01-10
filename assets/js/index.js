@@ -2,210 +2,32 @@ import StateManager from './state.js';
 import DragDropManager from './dragdrop.js';
 
 // const STORAGE_KEY = "glistApp";
-const newListContainer = document.getElementById('new-list-container');
-const listsContainer = document.getElementById('lists-container');
+const createGlistForm = document.querySelector("#create-glist-form");
+const deleteCompletedTasksBtn = document.getElementById('delete-completed-tasks-btn');
 const hiddenGlistsDropdown = document.getElementById('archived-lists');
 const hiddenGlistsToggle = document.getElementById('archived-lists-toggle');
-const deleteCompletedTasksBtn = document.getElementById('delete-completed-tasks-btn');
-const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+const listsContainer = document.getElementById('lists-container');
 const mobileMenu = document.getElementById('navbarSupportedContent');
+const mobileMenuToggle = document.getElementById('mobile-menu-toggle');
+const newListButton = document.getElementById("create-glist-btn");
+const newListContainer = document.getElementById('new-list-container');
 
-setUpToggle(mobileMenuToggle, mobileMenu);
-
-function setUpToggle(toggler, toggled) {
-  toggler.addEventListener('click', function(e) {
-    e.preventDefault();
-    toggled.classList.toggle('show');
-  });
-}
-
-// StateManager encapsulates state management logic
+// Load initial state
 let state = StateManager.load();
 
-function renderGlists(state) {
-  listsContainer.innerHTML = "";
-
-  const glists = state.glists.allIds
-    .map(id => state.glists.byId[id])
-    .filter(g => !g.archived)
-    .sort((a, b) => a.order - b.order);
-
-  if (glists.length === 0) {
-    listsContainer.innerHTML = `
-      <div class="list-container">
-        <div class="list-header">
-          <h3>Your Lists</h3>
-        </div>
-        <div class="font-weight-normal task-container">
-          All lists you create will show up on this page.
-          Click the plus sign in the navbar above to get started.
-        </div>
-      </div>
-    `;
-    return;
-  }
-
-  glists.forEach(glist => {
-    listsContainer.insertAdjacentHTML("beforeend", renderGlist(glist, state));
-  });
-
-  // Refresh hidden glists dropdown
-  if (hiddenGlistsDropdown) {
-    const archivedGlists = state.glists.allIds
-      .map(id => state.glists.byId[id])
-      .filter(glist => glist.archived);
-
-      if (archivedGlists.length > 0) {
-        hiddenGlistsToggle.classList.remove('hidden');
-
-        archivedGlists.forEach(glist => {
-          let archivedItem = document.createElement('button');
-          archivedItem.classList.add('dropdown-item');
-          archivedItem.setAttribute('data-list', glist.id);
-          archivedItem.innerText = escapeHTML(glist.name);
-          archivedItem.addEventListener('click', function() {
-            unarchiveGlist(glist.id);
-          });
-          
-          hiddenGlistsDropdown.appendChild(archivedItem);
-        });
-      }
-      
-      else {
-        hiddenGlistsDropdown.classList.remove('show');
-        hiddenGlistsDropdown.innerHTML = '';
-        hiddenGlistsToggle.classList.add('hidden');
-      }
-  }
-}
-
-function renderGlist(glist, state) {
-  const tasks = getTasksForGlist(state, glist.id);
-
-  return `
-    <div class="list-container" id="glist-container_${glist.id}" draggable="true">
-      <div class="list-header">
-
-        <div class="glist-header" id="glist-header-${glist.id}">
-          <a class="glist-dropdown-btn dropdown-toggle" href="#">
-            <h3 class="list-name mb-1">${escapeHTML(glist.name)}</h3>
-          </a>
-
-          <span class="drag-icon" title="click to drag">
-            <i class="fas fa-grip-horizontal"></i>
-          </span>
-
-          ${renderGlistDropdown(glist, state)}
-        </div>
-      </div>
-
-      <div class="add-task-container mb-2">
-        <form class="add-task-form font-small">
-          <input class="add-task-input"
-                 type="text"
-                 placeholder="Add Task"
-                 required>
-          <button class="btn-check task-add" type="submit">
-            <i class="fas fa-check"></i>
-          </button>
-        </form>
-      </div>
-
-      <div id="task-container-${glist.id}" class="task-container sortable-tasks">
-        ${tasks.map(renderTask).join("")}
-      </div>
-    </div>
-  `;
-}
-
-function renderGlistDropdown(glist, state) {
-  const sortedLists = state.glists.allIds
-    .map(id => state.glists.byId[id])
-    .sort((a, b) => a.name.localeCompare(b.name));
-
-  return `
-    <div class="dropdown-menu">
-
-      <button class="dropdown-item edit-glist-btn hidden" data-id="${glist.id}">
-        <i class="far fa-edit"></i> Edit List Name
-      </button>
-
-      <button class="dropdown-item" data-id="${glist.id}">
-        <i class="far fa-eye-slash"></i> Hide List
-      </button>
-
-      <button class="dropdown-item hidden" data-id="${glist.id}">
-        <i class="far fa-copy"></i> Import Tasks From
-      </button>
-
-      <button class="dropdown-item text-danger" data-id="${glist.id}">
-        <i class="fas fa-trash"></i> Delete List
-      </button>
-
-    </div>
-
-    <div class="hidden import-list mb-1" id="import-list-${glist.id}">
-      <div class="import-list-header pb-1 pt-1 pl-3">
-        Import From
-        <span class="pointer right">
-          <i class="fas fa-times"></i>
-        </span>
-      </div>
-
-      ${sortedLists.map(list => `
-        <button class="dropdown-item pl-3">
-          ${escapeHTML(list.name)}
-        </button>
-      `).join("")}
-    </div>
-  `;
-}
-
-function getTasksForGlist(state, glistId) {
-  return state.tasks.allIds
-    .map(id => state.tasks.byId[id])
-    .filter(t => t.glist_id === glistId)
-    .sort((a, b) => a.order - b.order);
-}
-
-/***** Task Functions *****/
-function renderTask(task) {
-  return `
-    <form id="task_${task.id}" draggable="true">
-      <input type="checkbox" ${task.completed ? "checked" : ""}>
-      <label class="checkbox-label ${task.completed ? "is-completed" : ""}">
-        ${escapeHTML(task.title)}
-      </label>
-    </form>
-  `;
-}
-
-function escapeHTML(str = "") {
-  return str.replace(/[&<>"']/g, m => ({
-    "&": "&amp;",
-    "<": "&lt;",
-    ">": "&gt;",
-    '"': "&quot;",
-    "'": "&#039;"
-  }[m]));
-}
-
+// Initial render
 renderGlists(state);
 
-// Add event listener for the "Create new list" button
-const newListButton = document.getElementById("create-glist-btn");
-if (newListButton) {
-  newListButton.addEventListener("click", event => {
-    event.preventDefault();
-    const newListForm = document.getElementById("new-list-container");
-    if (newListForm) {
-      newListForm.classList.toggle("show");
-    }
-  });
-}
+// Mobile menu toggle
+setUpToggle(mobileMenuToggle, mobileMenu);
+
+// Archived lists toggle
+setUpToggle(hiddenGlistsToggle, hiddenGlistsDropdown);
+
+// New list form toggle
+setUpToggle(newListButton, newListContainer);
 
 // Handle submission of the create-glist-form
-const createGlistForm = document.querySelector("#create-glist-form");
 if (createGlistForm) {
   createGlistForm.addEventListener("submit", event => {
     event.preventDefault();
@@ -232,11 +54,6 @@ if (createGlistForm) {
     }
   });
 }
-
-// Event listener for hiddenGlistsToggle
-hiddenGlistsToggle.addEventListener('click', function () {
-  hiddenGlistsDropdown.classList.toggle('show');
-});
 
 // Event delegation for dropdown buttons
 if (listsContainer) {
@@ -284,74 +101,6 @@ if (listsContainer) {
   });
 }
 
-function archiveGlist(glistId) {
-  const glist = state.glists.byId[glistId];
-  if (glist) {
-    glist.archived = true;
-    StateManager.save(state);
-    renderGlists(state);
-  } else {
-    console.error(`Glist with ID ${glistId} not found.`);
-  }
-}
-
-function unarchiveGlist(glistId) {
-  const glist = state.glists.byId[glistId];
-  if (glist) {
-    glist.archived = false;
-    StateManager.save(state);
-    renderGlists(state);
-  } else {
-    console.error(`Glist with ID ${glistId} not found.`);
-  }
-}
-
-function toggleTask(taskId) {
-  const state = StateManager.load();
-  const task = state.tasks.byId[taskId];
-
-  if (task) {
-    task.completed = !task.completed;
-    StateManager.save(state);
-    
-    const taskElement = document.getElementById(`task_${taskId}`);
-    const label = taskElement.querySelector('.checkbox-label');
-
-    if (task.completed) {
-      label.classList.add('is-completed');
-    } else {
-      label.classList.remove('is-completed');
-    }
-  }
-}
-
-function addTaskToGlist(glistId, taskTitle) {
-  state = StateManager.load();
-
-  if (!state.glists.byId[glistId]) {
-    console.error(`Glist with ID ${glistId} not found.`);
-    return;
-  }
-
-  const newTask = {
-    id: `task-${Date.now()}`,
-    title: taskTitle,
-    completed: false,
-    glist_id: glistId,
-    order: state.tasks.allIds.length,
-  };
-
-  state.tasks.byId[newTask.id] = newTask;
-  state.tasks.allIds.push(newTask.id);
-  StateManager.save(state);
-  state = StateManager.load();
-
-  const taskContainer = document.getElementById(`task-container-${glistId}`);
-  if (taskContainer) {
-    taskContainer.insertAdjacentHTML("beforeend", renderTask(newTask));
-  }
-}
-
 // Add event listener for all add-task-form submissions
 document.addEventListener("submit", event => {
   const form = event.target.closest(".add-task-form");
@@ -386,13 +135,259 @@ document.addEventListener("change", event => {
 });
 
 // Event listener for delete completed tasks button
-deleteCompletedTasksBtn.addEventListener('click', function(event) {
+deleteCompletedTasksBtn.addEventListener('click', function (event) {
   event.preventDefault();
   const confirmation = confirm("Are you sure you want to delete all completed tasks?");
   if (confirmation) {
     deleteCompletedTasks();
   }
 });
+
+
+/***** Functions *********************************/
+
+function setUpToggle(toggler, toggled) {
+  toggler.addEventListener('click', function (e) {
+    e.preventDefault();
+    toggled.classList.toggle('show');
+  });
+}// setUpToggle
+
+function renderGlists(state) {
+  listsContainer.innerHTML = "";
+
+  const glists = state.glists.allIds
+    .map(id => state.glists.byId[id])
+    .filter(g => !g.archived)
+    .sort((a, b) => a.order - b.order);
+
+  if (glists.length === 0) {
+    listsContainer.innerHTML = `
+      <div class="list-container">
+        <div class="list-header">
+          <h3>Your Lists</h3>
+        </div>
+        <div class="font-weight-normal task-container">
+          All lists you create will show up on this page.
+          Click the plus sign in the navbar above to get started.
+        </div>
+      </div>
+    `;
+    return;
+  }
+
+  glists.forEach(glist => {
+    listsContainer.insertAdjacentHTML("beforeend", renderGlist(glist, state));
+  });
+
+  // Refresh hidden glists dropdown
+  if (hiddenGlistsDropdown) {
+    const archivedGlists = state.glists.allIds
+      .map(id => state.glists.byId[id])
+      .filter(glist => glist.archived);
+
+    if (archivedGlists.length > 0) {
+      hiddenGlistsToggle.classList.add('show');
+
+      archivedGlists.forEach(glist => {
+        let archivedItem = document.createElement('button');
+        archivedItem.classList.add('dropdown-item');
+        archivedItem.setAttribute('data-list', glist.id);
+        archivedItem.innerText = escapeHTML(glist.name);
+        archivedItem.addEventListener('click', function () {
+          unarchiveGlist(glist.id);
+        });
+
+        hiddenGlistsDropdown.appendChild(archivedItem);
+      });
+    }
+
+    else {
+      hiddenGlistsDropdown.classList.remove('show');
+      hiddenGlistsDropdown.innerHTML = '';
+      hiddenGlistsToggle.classList.remove('show');
+    }
+  }
+}// renderGlists
+
+function renderGlist(glist, state) {
+  const tasks = getTasksForGlist(state, glist.id);
+
+  return `
+    <div class="list-container" id="glist-container_${glist.id}" draggable="true">
+      <div class="list-header">
+
+        <div class="glist-header" id="glist-header-${glist.id}">
+          <a class="glist-dropdown-btn dropdown-toggle" href="#">
+            <h3 class="list-name mb-1">${escapeHTML(glist.name)}</h3>
+          </a>
+
+          <span class="drag-icon" title="click to drag">
+            <i class="fas fa-grip-horizontal"></i>
+          </span>
+
+          ${renderGlistDropdown(glist, state)}
+        </div>
+      </div>
+
+      <div class="add-task-container mb-2">
+        <form class="add-task-form font-small">
+          <input class="add-task-input"
+                 type="text"
+                 placeholder="Add Task"
+                 required>
+          <button class="btn-check task-add" type="submit">
+            <i class="fas fa-check"></i>
+          </button>
+        </form>
+      </div>
+
+      <div id="task-container-${glist.id}" class="task-container sortable-tasks">
+        ${tasks.map(renderTask).join("")}
+      </div>
+    </div>
+  `;
+}// renderGlist
+
+function renderGlistDropdown(glist, state) {
+  const sortedLists = state.glists.allIds
+    .map(id => state.glists.byId[id])
+    .sort((a, b) => a.name.localeCompare(b.name));
+
+  return `
+    <div class="dropdown-menu">
+
+      <button class="dropdown-item edit-glist-btn hidden" data-id="${glist.id}">
+        <i class="far fa-edit"></i> Edit List Name
+      </button>
+
+      <button class="dropdown-item" data-id="${glist.id}">
+        <i class="far fa-eye-slash"></i> Hide List
+      </button>
+
+      <button class="dropdown-item hidden" data-id="${glist.id}">
+        <i class="far fa-copy"></i> Import Tasks From
+      </button>
+
+      <button class="dropdown-item text-danger" data-id="${glist.id}">
+        <i class="fas fa-trash"></i> Delete List
+      </button>
+
+    </div>
+
+    <div class="hidden import-list mb-1" id="import-list-${glist.id}">
+      <div class="import-list-header pb-1 pt-1 pl-3">
+        Import From
+        <span class="pointer right">
+          <i class="fas fa-times"></i>
+        </span>
+      </div>
+
+      ${sortedLists.map(list => `
+        <button class="dropdown-item pl-3">
+          ${escapeHTML(list.name)}
+        </button>
+      `).join("")}
+    </div>
+  `;
+}// renderGlistDropdown
+
+function getTasksForGlist(state, glistId) {
+  return state.tasks.allIds
+    .map(id => state.tasks.byId[id])
+    .filter(t => t.glist_id === glistId)
+    .sort((a, b) => a.order - b.order);
+}// getTasksForGlist
+
+/***** Task Functions *****/
+function renderTask(task) {
+  return `
+    <form id="task_${task.id}" draggable="true">
+      <input type="checkbox" ${task.completed ? "checked" : ""}>
+      <label class="checkbox-label ${task.completed ? "is-completed" : ""}">
+        ${escapeHTML(task.title)}
+      </label>
+    </form>
+  `;
+}// renderTask
+
+function escapeHTML(str = "") {
+  return str.replace(/[&<>"']/g, m => ({
+    "&": "&amp;",
+    "<": "&lt;",
+    ">": "&gt;",
+    '"': "&quot;",
+    "'": "&#039;"
+  }[m]));
+}// escapeHTML
+
+function archiveGlist(glistId) {
+  const glist = state.glists.byId[glistId];
+  if (glist) {
+    glist.archived = true;
+    StateManager.save(state);
+    renderGlists(state);
+  } else {
+    alert(`Glist with ID ${glistId} not found.`);
+  }
+}// archiveGlist
+
+function unarchiveGlist(glistId) {
+  const glist = state.glists.byId[glistId];
+  if (glist) {
+    glist.archived = false;
+    StateManager.save(state);
+    renderGlists(state);
+  } else {
+    alert(`Glist with ID ${glistId} not found.`);
+  }
+}// unarchiveGlist
+
+function toggleTask(taskId) {
+  const state = StateManager.load();
+  const task = state.tasks.byId[taskId];
+
+  if (task) {
+    task.completed = !task.completed;
+    StateManager.save(state);
+
+    const taskElement = document.getElementById(`task_${taskId}`);
+    const label = taskElement.querySelector('.checkbox-label');
+
+    if (task.completed) {
+      label.classList.add('is-completed');
+    } else {
+      label.classList.remove('is-completed');
+    }
+  }
+}// toggleTask
+
+function addTaskToGlist(glistId, taskTitle) {
+  state = StateManager.load();
+
+  if (!state.glists.byId[glistId]) {
+    console.error(`Glist with ID ${glistId} not found.`);
+    return;
+  }
+
+  const newTask = {
+    id: `task-${Date.now()}`,
+    title: taskTitle,
+    completed: false,
+    glist_id: glistId,
+    order: state.tasks.allIds.length,
+  };
+
+  state.tasks.byId[newTask.id] = newTask;
+  state.tasks.allIds.push(newTask.id);
+  StateManager.save(state);
+  state = StateManager.load();
+
+  const taskContainer = document.getElementById(`task-container-${glistId}`);
+  if (taskContainer) {
+    taskContainer.insertAdjacentHTML("beforeend", renderTask(newTask));
+  }
+}// addTaskToGlist
 
 function deleteCompletedTasks() {
   state = StateManager.load();
@@ -401,7 +396,7 @@ function deleteCompletedTasks() {
   completedTaskIds.forEach(id => {
     delete state.tasks.byId[id];
   });
-  
+
   state.tasks.allIds = state.tasks.allIds.filter(id => !completedTaskIds.includes(id));
   StateManager.save(state);
   renderGlists(state);

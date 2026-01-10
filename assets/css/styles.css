@@ -455,6 +455,14 @@ hr {
   border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
+#archived-lists-toggle {
+  display: none;
+}
+
+#archived-lists-toggle.show {
+  display: inline;
+}
+
 small,
 .small {
   font-size: 80%;
