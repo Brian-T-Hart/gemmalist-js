@@ -187,7 +187,10 @@ function renderGlists() {
     `;
   }
 
-  // Refresh hidden glists dropdown
+  renderHiddenGlistsDropdown();
+}// renderGlists
+
+function renderHiddenGlistsDropdown() {
   if (hiddenGlistsDropdown) {
     hiddenGlistsDropdown.innerHTML = '';
     const archivedGlists = state.glists.allIds
@@ -216,7 +219,7 @@ function renderGlists() {
       hiddenGlistsToggle.classList.remove('show');
     }
   }
-}// renderGlists
+}// renderHiddenGlistsDropdown
 
 function renderGlist(glist, state) {
   const tasks = getTasksForGlist(state, glist.id);
