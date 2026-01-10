@@ -3,7 +3,7 @@ import DragDropManager from './dragdrop.js';
 
 // const STORAGE_KEY = "glistApp";
 const createGlistForm = document.querySelector("#create-glist-form");
-const deleteCompletedTasksBtn = document.getElementById('delete-completed-tasks-btn');
+const deleteAllCompletedTasksBtn = document.getElementById('delete-completed-tasks-btn');
 const hiddenGlistsDropdown = document.getElementById('archived-lists');
 const hiddenGlistsToggle = document.getElementById('archived-lists-toggle');
 const listsContainer = document.getElementById('lists-container');
@@ -28,32 +28,16 @@ setUpToggle(hiddenGlistsToggle, hiddenGlistsDropdown);
 setUpToggle(newListButton, newListContainer);
 
 // Handle submission of the create-glist-form
-if (createGlistForm) {
-  createGlistForm.addEventListener("submit", event => {
-    event.preventDefault();
+createGlistForm.addEventListener("submit", event => {
+  event.preventDefault();
+  handleCreateGlistFormSubmit(createGlistForm);
+});
 
-    const formData = new FormData(createGlistForm);
-    const newListName = formData.get("name").trim();
-
-    if (newListName) {
-      const newGlist = {
-        id: `glist-${Date.now()}`,
-        name: newListName,
-        archived: false,
-        order: state.glists.allIds.length,
-      };
-
-      state.glists.byId[newGlist.id] = newGlist;
-      state.glists.allIds.push(newGlist.id);
-      StateManager.save(state);
-      renderGlists(state);
-
-      // Reset the form and hide it
-      createGlistForm.reset();
-      newListContainer.classList.remove("show");
-    }
-  });
-}
+// Handle delete all completed tasks button click
+deleteAllCompletedTasksBtn.addEventListener('click', function (event) {
+  event.preventDefault();
+  handleDeleteAllCompletedTasks();
+});
 
 // Event delegation for dropdown buttons
 if (listsContainer) {
@@ -106,7 +90,6 @@ document.addEventListener("submit", event => {
   const form = event.target.closest(".add-task-form");
   if (form) {
     event.preventDefault();
-
     const input = form.querySelector(".add-task-input");
     const glistContainer = form.closest(".list-container");
 
@@ -134,17 +117,38 @@ document.addEventListener("change", event => {
   }
 });
 
-// Event listener for delete completed tasks button
-deleteCompletedTasksBtn.addEventListener('click', function (event) {
-  event.preventDefault();
-  const confirmation = confirm("Are you sure you want to delete all completed tasks?");
-  if (confirmation) {
-    deleteCompletedTasks();
-  }
-});
-
 
 /***** Functions *********************************/
+function handleCreateGlistFormSubmit(createGlistForm) {
+  const formData = new FormData(createGlistForm);
+  const newListName = formData.get("name").trim();
+
+  if (newListName) {
+    const newGlist = {
+      id: `glist-${Date.now()}`,
+      name: newListName,
+      archived: false,
+      order: state.glists.allIds.length,
+    };
+
+    state.glists.byId[newGlist.id] = newGlist;
+    state.glists.allIds.push(newGlist.id);
+    StateManager.save(state);
+    renderGlists(state);
+
+    // Reset the form and hide it
+    createGlistForm.reset();
+    newListContainer.classList.remove("show");
+  }
+}// handleCreateGlistFormSubmit
+
+function handleDeleteAllCompletedTasks() {
+  const confirmation = confirm("Are you sure you want to delete all completed tasks?");
+
+  if (confirmation) {
+    deleteAllCompletedTasks();
+  }
+}// handleDeleteAllCompletedTasks
 
 function setUpToggle(toggler, toggled) {
   toggler.addEventListener('click', function (e) {
@@ -389,7 +393,7 @@ function addTaskToGlist(glistId, taskTitle) {
   }
 }// addTaskToGlist
 
-function deleteCompletedTasks() {
+function deleteAllCompletedTasks() {
   state = StateManager.load();
   const completedTaskIds = state.tasks.allIds.filter(id => state.tasks.byId[id].completed);
 
