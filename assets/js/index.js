@@ -16,7 +16,7 @@ const newListContainer = document.getElementById('new-list-container');
 let state = StateManager.load();
 
 // Initial render
-renderGlists(state);
+renderGlists();
 
 // Mobile menu toggle
 setUpToggle(mobileMenuToggle, mobileMenu);
@@ -157,13 +157,17 @@ function setUpToggle(toggler, toggled) {
   });
 }// setUpToggle
 
-function renderGlists(state) {
+function renderGlists() {
   listsContainer.innerHTML = "";
 
   const glists = state.glists.allIds
     .map(id => state.glists.byId[id])
     .filter(g => !g.archived)
     .sort((a, b) => a.order - b.order);
+
+  glists.forEach(glist => {
+    listsContainer.insertAdjacentHTML("beforeend", renderGlist(glist, state));
+  });
 
   if (glists.length === 0) {
     listsContainer.innerHTML = `
@@ -177,15 +181,11 @@ function renderGlists(state) {
         </div>
       </div>
     `;
-    return;
   }
-
-  glists.forEach(glist => {
-    listsContainer.insertAdjacentHTML("beforeend", renderGlist(glist, state));
-  });
 
   // Refresh hidden glists dropdown
   if (hiddenGlistsDropdown) {
+    hiddenGlistsDropdown.innerHTML = '';
     const archivedGlists = state.glists.allIds
       .map(id => state.glists.byId[id])
       .filter(glist => glist.archived);
