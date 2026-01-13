@@ -118,8 +118,7 @@ document.addEventListener("change", event => {
 });
 
 // Initialize drag-and-drop functionality
-DragDropManager.enableGlistDragAndDrop(listsContainer, StateManager);
-DragDropManager.enableTaskDragAndDrop(listsContainer, StateManager);
+DragDropManager.enableDragAndDrop(StateManager);
 
 
 /***** Functions *********************************/
