@@ -51,6 +51,20 @@ if (listsContainer) {
         dropdownMenu.classList.toggle("show");
       }
     }
+    
+    const hideButton = event.target.closest(".dropdown-item");
+    if (hideButton && hideButton.textContent.includes("Hide List")) {
+      event.preventDefault();
+      const glistId = hideButton.dataset.id;
+      archiveGlist(glistId);
+    }
+
+    const deleteCompletedButton = event.target.closest(".dropdown-item.delete-completed");
+    if (deleteCompletedButton) {
+      event.preventDefault();
+      const glistId = deleteCompletedButton.dataset.id;
+      deleteCompletedTasksFromList(glistId);
+    }
 
     const deleteButton = event.target.closest(".dropdown-item.text-danger");
     if (deleteButton) {
@@ -76,12 +90,6 @@ if (listsContainer) {
       }
     }
 
-    const hideButton = event.target.closest(".dropdown-item");
-    if (hideButton && hideButton.textContent.includes("Hide List")) {
-      event.preventDefault();
-      const glistId = hideButton.dataset.id;
-      archiveGlist(glistId);
-    }
   });
 }
 
@@ -279,6 +287,10 @@ function renderGlistDropdown(glist, state) {
         <i class="far fa-copy"></i> Import Tasks From
       </button>
 
+      <button class="dropdown-item delete-completed" data-id="${glist.id}">
+        <i class="fas fa-trash"></i> Delete Completed
+      </button>
+
       <button class="dropdown-item text-danger" data-id="${glist.id}">
         <i class="fas fa-trash"></i> Delete List
       </button>
@@ -402,6 +414,28 @@ function addTaskToGlist(glistId, taskTitle) {
 function deleteAllCompletedTasks() {
   state = StateManager.load();
   const completedTaskIds = state.tasks.allIds.filter(id => state.tasks.byId[id].completed);
+
+  completedTaskIds.forEach(id => {
+    delete state.tasks.byId[id];
+  });
+
+  state.tasks.allIds = state.tasks.allIds.filter(id => !completedTaskIds.includes(id));
+  StateManager.save(state);
+  renderGlists(state);
+}
+
+function deleteCompletedTasksFromList(glistId) {
+  state = StateManager.load();
+
+  if (!state.glists.byId[glistId]) {
+    console.error(`Glist with ID ${glistId} not found.`);
+    return;
+  }
+
+  const completedTaskIds = state.tasks.allIds.filter(id => {
+    const task = state.tasks.byId[id];
+    return task.completed && task.glist_id === glistId;
+  });
 
   completedTaskIds.forEach(id => {
     delete state.tasks.byId[id];
