@@ -1,19 +1,19 @@
 const DragDropManager = {
   enableDragAndDrop: (StateManager) => {
     const listsContainer = document.getElementById("lists-container");
+
     // Unified dragstart event handler
     listsContainer.addEventListener("dragstart", event => {
-      const glist = event.target.closest(".list-container");
-      const task = event.target.closest("form");
+      console.log("Drag started on element:", event.target);
 
-      if (task && task.parentElement.classList.contains("task-container")) {
-        event.dataTransfer.setData("text/plain", task.id);
-        task.classList.add("dragging");
-      } else if (glist) {
-        event.dataTransfer.setData("text/plain", glist.id);
-        glist.classList.add("dragging");
+      if (event.target.classList.contains("task")) {
+        event.dataTransfer.setData("text/plain", event.target.id);
+        event.target.classList.add("dragging");
+      } else if (event.target.classList.contains("list-container")) {
+        event.dataTransfer.setData("text/plain", event.target.id);
+        event.target.classList.add("dragging");
       } else {
-        alert("Drag start event triggered on an invalid element:", event.target);
+        console.error("Drag start event triggered on an invalid element:", event.target);
       }
     });
 
@@ -21,7 +21,7 @@ const DragDropManager = {
     listsContainer.addEventListener("dragover", event => {
       event.preventDefault();
       const draggingElement = document.querySelector(".dragging");
-      const closestElement = event.target.closest(".task-container form, .list-container");
+      const closestElement = event.target.closest(".task, .list-container");
 
       if (closestElement && closestElement !== draggingElement) {
         const bounding = closestElement.getBoundingClientRect();
@@ -43,14 +43,23 @@ const DragDropManager = {
       }
 
       const state = StateManager.load();
-      const container = event.target.closest(".task-container, .list-container");
+      const isGlist = draggingElement?.classList.contains("list-container");
+      const isTask = draggingElement?.classList.contains("task");
 
-      if (container) {
-        const isGlist = container.classList.contains("list-container");
+      if (isGlist || isTask) {
+        const container = isGlist
+          ? document.querySelector("#lists-container")
+          : draggingElement.parentElement;
+
+        if (!container) {
+          console.error("Drag end event triggered outside of a valid container:", event.target);
+          location.reload();
+          return;
+        }
 
         const newOrder = Array.from(container.children).map((child, index) => {
           if (!child.id) {
-            alert("Element is missing an ID:", child);
+            console.error("Element is missing an ID:", child);
             return null;
           }
           const id = isGlist
@@ -59,12 +68,22 @@ const DragDropManager = {
 
           const stateSection = isGlist ? state.glists : state.tasks;
           if (!stateSection.byId[id]) {
-            alert(`State is missing ${isGlist ? "glist" : "task"} ID:`, id);
+            console.error(`State is missing ${isGlist ? "glist" : "task"} ID:`, id, stateSection);
             return null;
           }
           stateSection.byId[id].order = index;
           return id;
         }).filter(Boolean);
+
+        if (newOrder.length !== container.children.length) {
+          console.error("Some elements were not processed correctly. Check the IDs and state.", {
+            containerChildren: container.children,
+            newOrder,
+            state
+          });
+          console.error("Error: Some elements could not be reordered. Check the console for details.");
+          return;
+        }
 
         if (isGlist) {
           state.glists.allIds = newOrder;
@@ -74,8 +93,8 @@ const DragDropManager = {
 
         StateManager.save(state);
       } else {
-        alert("Drag end event triggered outside of a valid container:", event.target);
-        location.reload();
+        console.error("Drag end event triggered on an invalid element:", event.target);
+        console.error("Error: Drag end event triggered on an invalid element.");
       }
     });
   }

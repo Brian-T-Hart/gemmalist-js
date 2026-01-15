@@ -312,9 +312,9 @@ function getTasksForGlist(state, glistId) {
 /***** Task Functions *****/
 function renderTask(task) {
   return `
-    <form id="task_${task.id}" draggable="true">
-      <input type="checkbox" ${task.completed ? "checked" : ""}>
-      <label class="checkbox-label ${task.completed ? "is-completed" : ""}">
+    <form class="task" id="task_${task.id}" draggable="true">
+      <input id="task-checkbox-${task.id}" type="checkbox" ${task.completed ? "checked" : ""}>
+      <label for="task-checkbox-${task.id}" class="checkbox-label ${task.completed ? "is-completed" : ""}">
         ${escapeHTML(task.title)}
       </label>
     </form>
