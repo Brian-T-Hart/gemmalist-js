@@ -45,10 +45,26 @@
 }
 
 html {
-  font-family: sans-serif;
-  line-height: 1.15;
   -webkit-text-size-adjust: 100%;
   -webkit-tap-highlight-color: rgba(0, 0, 0, 0);
+}
+
+body {
+  background-color: #FFF;
+  background-image: url(https://images.pexels.com/photos/547119/pexels-photo-547119.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940);
+  background-size: cover;
+  background-position: center center;
+  box-sizing: border-box;
+  color: #222222;
+  font-family: "Nunito", sans-serif;
+  font-size: 0.9rem;
+  font-weight: 400;
+  font-weight: 200;
+  height: 100dvh;
+  line-height: 1.6;
+  margin: 0;
+  text-align: left;
+  overflow-y: auto;
 }
 
 article,
@@ -62,42 +78,6 @@ main,
 nav,
 section {
   display: block;
-}
-
-body {
-  margin: 0;
-  font-family: "Nunito", sans-serif;
-  font-size: 0.9rem;
-  font-weight: 400;
-  line-height: 1.6;
-  color: #212529;
-  text-align: left;
-  background-color: #f8fafc;
-}
-
-[tabindex="-1"]:focus:not(:focus-visible) {
-  outline: 0 !important;
-}
-
-hr {
-  box-sizing: content-box;
-  height: 0;
-  overflow: visible;
-}
-
-h1,
-h2,
-h3,
-h4,
-h5,
-h6 {
-  margin-top: 0;
-  margin-bottom: 0.5rem;
-}
-
-p {
-  margin-top: 0;
-  margin-bottom: 1rem;
 }
 
 abbr[title],
@@ -116,6 +96,32 @@ address {
   font-style: normal;
   line-height: inherit;
 }
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  margin-top: 0;
+  margin-bottom: 0.5rem;
+}
+
+hr {
+  border: 0;
+  border-top: 1px solid rgba(0, 0, 0, 0.1);
+  box-sizing: content-box;
+  height: 0;
+  margin-bottom: 1rem;
+  margin-top: 1rem;
+  overflow: visible;
+}
+
+p {
+  margin-top: 0;
+  margin-bottom: 1rem;
+}
+
 
 ol,
 ul,
@@ -453,6 +459,10 @@ hr {
   margin-bottom: 1rem;
   border: 0;
   border-top: 1px solid rgba(0, 0, 0, 0.1);
+}
+
+[tabindex="-1"]:focus:not(:focus-visible) {
+  outline: 0 !important;
 }
 
 #archived-lists-toggle {
@@ -10896,18 +10906,6 @@ a.text-dark:focus {
   box-sizing: border-box;
 }
 
-html,
-body {
-  background-color: #FFF;
-  box-sizing: border-box;
-  color: #222222;
-  font-family: "Nunito", sans-serif;
-  font-weight: 200;
-  height: 100vh;
-  margin: 0;
-  overflow: hidden;
-}
-
 a {
   color: #fff;
 }
@@ -10924,12 +10922,6 @@ form:focus,
 
 a.dropdown-toggle::after {
   display: none;
-}
-
-body {
-  background-image: url(https://images.pexels.com/photos/547119/pexels-photo-547119.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940);
-  background-size: cover;
-  background-position: center center;
 }
 
 button,
@@ -11242,7 +11234,6 @@ nav li {
 }
 
 #app {
-  height: 100vh;
   overflow: auto;
 }
 
