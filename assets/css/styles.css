@@ -50,11 +50,10 @@ html {
 }
 
 body {
-  background-color: #FFF;
-  background-image: url(https://images.pexels.com/photos/547119/pexels-photo-547119.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940);
+  background-color: #175676;
+  /* background-image: url(https://images.pexels.com/photos/547119/pexels-photo-547119.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=650&w=940); */
   background-size: cover;
   background-position: center center;
-  box-sizing: border-box;
   color: #222222;
   font-family: "Nunito", sans-serif;
   font-size: 0.9rem;
@@ -80,6 +79,27 @@ section {
   display: block;
 }
 
+a {
+  color: #3490dc;
+  text-decoration: none;
+  background-color: transparent;
+}
+
+a:hover {
+  color: #1d68a7;
+  text-decoration: underline;
+}
+
+a:not([href]) {
+  color: inherit;
+  text-decoration: none;
+}
+
+a:not([href]):hover {
+  color: inherit;
+  text-decoration: none;
+}
+
 abbr[title],
 abbr[data-original-title] {
   text-decoration: underline;
@@ -102,9 +122,47 @@ h2,
 h3,
 h4,
 h5,
-h6 {
-  margin-top: 0;
+h6,
+.h1,
+.h2,
+.h3,
+.h4,
+.h5,
+.h6 {
+  font-weight: 500;
+  line-height: 1.2;
   margin-bottom: 0.5rem;
+  margin-top: 0;
+}
+
+h1,
+.h1 {
+  font-size: 2.25rem;
+}
+
+h2,
+.h2 {
+  font-size: 1.8rem;
+}
+
+h3,
+.h3 {
+  font-size: 1.575rem;
+}
+
+h4,
+.h4 {
+  font-size: 1.35rem;
+}
+
+h5,
+.h5 {
+  font-size: 1.125rem;
+}
+
+h6,
+.h6 {
+  font-size: 0.9rem;
 }
 
 hr {
@@ -175,26 +233,7 @@ sup {
   top: -0.5em;
 }
 
-a {
-  color: #3490dc;
-  text-decoration: none;
-  background-color: transparent;
-}
 
-a:hover {
-  color: #1d68a7;
-  text-decoration: underline;
-}
-
-a:not([href]) {
-  color: inherit;
-  text-decoration: none;
-}
-
-a:not([href]):hover {
-  color: inherit;
-  text-decoration: none;
-}
 
 pre,
 code,
@@ -378,53 +417,6 @@ template {
   display: none !important;
 }
 
-h1,
-h2,
-h3,
-h4,
-h5,
-h6,
-.h1,
-.h2,
-.h3,
-.h4,
-.h5,
-.h6 {
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  line-height: 1.2;
-}
-
-h1,
-.h1 {
-  font-size: 2.25rem;
-}
-
-h2,
-.h2 {
-  font-size: 1.8rem;
-}
-
-h3,
-.h3 {
-  font-size: 1.575rem;
-}
-
-h4,
-.h4 {
-  font-size: 1.35rem;
-}
-
-h5,
-.h5 {
-  font-size: 1.125rem;
-}
-
-h6,
-.h6 {
-  font-size: 0.9rem;
-}
-
 .lead {
   font-size: 1.125rem;
   font-weight: 300;
@@ -452,13 +444,6 @@ h6,
   font-size: 3.5rem;
   font-weight: 300;
   line-height: 1.2;
-}
-
-hr {
-  margin-top: 1rem;
-  margin-bottom: 1rem;
-  border: 0;
-  border-top: 1px solid rgba(0, 0, 0, 0.1);
 }
 
 [tabindex="-1"]:focus:not(:focus-visible) {
@@ -11073,7 +11058,7 @@ nav li {
 }
 
 .list-container {
-  background-color: #ebecf0;
+  background-color: rgba(204, 230, 244, 0.7);
   border: 1px solid silver;
   border-radius: 10px;
   margin: 20px;
@@ -11142,7 +11127,9 @@ nav li {
 }
 
 .navbar-laravel {
-  background: rgba(0, 0, 0, 0.32);
+  /* background: rgba(0, 0, 0, 0.32); */
+  /* background-color: rgba(247, 197, 159, 0.3); */
+  background-color: #ba324f;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
   padding: 10px 16px;
   position: fixed;
